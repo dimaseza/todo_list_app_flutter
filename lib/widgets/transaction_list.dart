@@ -10,10 +10,9 @@ class TransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
-      child: transactions.isEmpty
-          ? Column(
+    return transactions.isEmpty
+        ? LayoutBuilder(builder: (ctx, constraint) {
+            return Column(
               children: <Widget>[
                 Text(
                   "No transactions added yet!",
@@ -26,51 +25,58 @@ class TransactionList extends StatelessWidget {
                   height: 12,
                 ),
                 Container(
-                  height: 200,
+                  height: constraint.maxHeight * 0.6,
                   child: Image.asset(
                     "assets/online_work.gif",
                     fit: BoxFit.cover,
                   ),
                 )
               ],
-            )
-          : ListView.builder(
-              itemBuilder: (ctx, index) {
-                return Card(
-                  elevation: 5,
-                  margin: EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 5,
+            );
+          })
+        : ListView.builder(
+            itemBuilder: (ctx, index) {
+              return Card(
+                elevation: 5,
+                margin: EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 5,
+                ),
+                child: ListTile(
+                  leading: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: FittedBox(
+                      child: CircleAvatar(
+                        radius: 30,
+                        child: Text("\$${transactions[index].amount}"),
+                      ),
+                    ),
                   ),
-                  child: ListTile(
-                    leading: Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: FittedBox(
-                        child: CircleAvatar(
-                          radius: 30,
-                          child: Text("\$${transactions[index].amount}"),
+                  title: Text(
+                    transactions[index].title,
+                    style: Theme.of(context).textTheme.title,
+                  ),
+                  subtitle: Text(
+                    DateFormat.yMMMd().format(transactions[index].date),
+                  ),
+                  trailing: MediaQuery.of(context).size.width > 460
+                      ? FlatButton.icon(
+                          icon: Icon(Icons.delete),
+                          textColor: Theme.of(context).errorColor,
+                          label: Text("Delete"),
+                          onPressed: () => deleteChosen(transactions[index].id),
+                        )
+                      : IconButton(
+                          icon: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).errorColor,
+                          ),
+                          onPressed: () => deleteChosen(transactions[index].id),
                         ),
-                      ),
-                    ),
-                    title: Text(
-                      transactions[index].title,
-                      style: Theme.of(context).textTheme.title,
-                    ),
-                    subtitle: Text(
-                      DateFormat.yMMMd().format(transactions[index].date),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        Icons.delete,
-                        color: Theme.of(context).errorColor,
-                      ),
-                      onPressed: () => deleteChosen(transactions[index].id),
-                    ),
-                  ),
-                );
-              },
-              itemCount: transactions.length,
-            ),
-    );
+                ),
+              );
+            },
+            itemCount: transactions.length,
+          );
   }
 }
